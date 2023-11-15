@@ -1,10 +1,11 @@
 <template>
   <div>
     <HelloWorld msg="Welcome to The Chat App"/>
-    <ScrollPanel ref="scrollPanel" scrollYRatio={0.99} style="width: 100%; height: 600px">
+    <div class="p-3">
+    <ScrollPanel ref="scrollPanel" class="overflow-auto main-chat-cont" scrollYRatio={0.99} style="width: 100%; height: 600px">
       <MessageComp v-for="(message, index) in messages" :key="index" :msg="message" />
     </ScrollPanel>
-    
+  </div>
     
     <div class="container">
       <Toolbar class="mt-3 w-full">
@@ -93,7 +94,7 @@ nav a.router-link-exact-active {
 }
 
 .p-toolbar-group-center {
-  width: 80%;
+  width: 85%;
 }
 
 .dialog-width-responsive {
