@@ -1,9 +1,13 @@
 <template>
+   <Dialog :visible="showDialog" v-model="showDialog" header="Entrez votre pseudo" :closable="false" :modal="true">
+    <InputText v-model="tempUsername" placeholder="Pseudo"/>
+    <Button label="Confirmer" @click="confirmUsername"/>
+  </Dialog>
   <div>
-    <HelloWorld msg="Welcome to The Chat App"/>
+    <HelloWorld msg="VUEGO CHAT APP" />
     <div class="p-3">
-    <ScrollPanel ref="scrollPanel" class="overflow-auto main-chat-cont" scrollYRatio={0.99} style="width: 100%; height: 600px">
-      <MessageComp v-for="(message, index) in messages" :key="index" :msg="message" />
+    <ScrollPanel ref="scrollPanel" class="overflow-auto main-chat-cont" scrollYRatio={0.99} style="width: 100%; height: 70vh">
+      <MessageComp v-for="(message, index) in messages" :key="index" :msg="message.message"  :userName="message.username"/>
     </ScrollPanel>
   </div>
     
@@ -14,7 +18,7 @@
         </template>
         <template #center>
           <div class="w-full w-auto-md">
-            <InputText type="text" v-model="value" class="w-full w-auto-md" ref="input"/>
+            <InputText type="text" v-model="value" class="w-full w-auto-md" ref="input" @keyup.enter="send" />
           </div>
         </template>
         <template #end>
@@ -29,37 +33,75 @@
 import HelloWorld from './components/HelloWorld.vue'
 import MessageComp from './components/Message.vue'
 import ScrollPanel from 'primevue/scrollpanel'
+import Dialog from 'primevue/dialog'
+import Message from './model/Message'
 
 export default {
   name: 'App',
   components: {
     HelloWorld,
     MessageComp,
-    ScrollPanel
+    ScrollPanel,
+    Dialog,
   },
   data() {
     return {
+      username: '',
+      tempUsername: '', // Variable temporaire pour le pseudo
+      showDialog: true, // Afficher le dialogue au démarrage
       value: '',
       socket: null,
       messages: [] // Tableau pour stocker les messages reçus
     }
   },
   methods: {
+    receiveMessage(jsonString) {
+      try {
+        const jsonObject = JSON.parse(jsonString);
+
+        if (jsonObject && jsonObject.username && jsonObject.message) {
+          const newMessage = new Message(jsonObject.username, jsonObject.message);
+          console.log(newMessage)
+          this.messages.push(newMessage);
+        } else {
+          console.error("JSON invalide reçu");
+        }
+      } catch (error) {
+        console.error("Erreur lors du parsing du JSON:", error);
+      }
+    },
     send() {
-      this.socket.send(this.value);
-      this.value = "";
+      if (this.value.trim() !== '') {
+        const messageObject = {
+        username: this.username,
+        message: this.value
+        };
+        this.socket.send(JSON.stringify(messageObject));
+        const newMessage = new Message(this.username, this.value);
+        this.messages.push(newMessage);
+        this.value = "";
+      }
+    },
+    confirmUsername() {
+      if (this.tempUsername.trim() !== '') {
+        this.username = this.tempUsername;
+        this.showDialog = false;
+      } else {
+        alert("Veuillez entrer un pseudo."); // Vous pouvez utiliser un mécanisme plus sophistiqué pour la validation
+      }
     }
+    
   },
   mounted() {
     this.socket = new WebSocket("ws://localhost:8080/echo");
 
     this.socket.onopen = () => {
-      this.messages.push("Status : connected");
+     
     };
 
     this.socket.onmessage = (e) => {
-      // Ajoutez le message au tableau des messages
-      this.messages.push(e.data);
+      this.receiveMessage(e.data);
+      console.log(this.messages)
     };
   }
 }
@@ -69,6 +111,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-align: center;
 
 }
 
@@ -116,7 +159,7 @@ nav a.router-link-exact-active {
   }
 
   .p-toolbar-group-center {
-    width: 80%;
+    width: 90%;
   }
 
   .p-toolbar-group-end {

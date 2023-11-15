@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -15,16 +16,16 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type User struct {
-	conn     *websocket.Conn
-	userName string
+type Message struct {
+	Username string `json:"username"`
+	Message  string `json:"message"`
 }
 
 var clients []*websocket.Conn
 
 func main() {
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
+		conn, err := upgrader.Upgrade(w, r, nil)
 
 		if err != nil {
 			fmt.Println(err)
@@ -41,14 +42,23 @@ func main() {
 				return
 			}
 
-			// Print the message to the console
 			fmt.Printf("%s sent: %s\n", conn.RemoteAddr(), string(msg))
+
+			var msgToSend Message
+
+			err = json.Unmarshal(msg, &msgToSend)
+			fmt.Printf(string(msg))
+
+			actualCl := conn.RemoteAddr()
 
 			for _, client := range clients {
 				// Write message back to browser
-				if err = client.WriteMessage(msgType, msg); err != nil {
-					return
+				if client.NetConn().RemoteAddr() != actualCl {
+					if err = client.WriteMessage(msgType, msg); err != nil {
+						return
+					}
 				}
+
 			}
 
 		}
