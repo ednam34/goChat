@@ -1,5 +1,6 @@
 export default class Message {
-    constructor(username, message ) {
+    constructor(type ,username, message ) {
+      this.type = type;
       this.username = username;
       this.message = message;
     }

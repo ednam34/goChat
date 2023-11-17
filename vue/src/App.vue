@@ -6,8 +6,15 @@
   <div>
     <HelloWorld msg="VUEGO CHAT APP" />
     <div class="p-3">
-    <ScrollPanel ref="scrollPanel" class="overflow-auto main-chat-cont" scrollYRatio={0.99} style="width: 100%; height: 70vh">
-      <MessageComp v-for="(message, index) in messages" :key="index" :msg="message.message"  :userName="message.username"/>
+    <ScrollPanel ref="scrollPanel" id="scrollMsg" class="overflow-auto main-chat-cont"  style="width: 100%; height: 70vh">
+      <MessageComp
+        v-for="(message, index) in messages"
+        :key="index"
+        :type="message.type"
+        :msg="message.message"
+        :userName="message.username"
+        :icon="message.type === 'success' ? 'pi pi-user-plus' : 'pi pi-send'"
+      />
     </ScrollPanel>
   </div>
     
@@ -59,8 +66,8 @@ export default {
       try {
         const jsonObject = JSON.parse(jsonString);
 
-        if (jsonObject && jsonObject.username && jsonObject.message) {
-          const newMessage = new Message(jsonObject.username, jsonObject.message);
+        if (jsonObject && jsonObject.username && jsonObject.message && jsonObject.type) {
+          const newMessage = new Message(jsonObject.type, jsonObject.username, jsonObject.message);
           console.log(newMessage)
           this.messages.push(newMessage);
         } else {
@@ -73,19 +80,37 @@ export default {
     send() {
       if (this.value.trim() !== '') {
         const messageObject = {
+        type: "info",  
         username: this.username,
         message: this.value
         };
         this.socket.send(JSON.stringify(messageObject));
-        const newMessage = new Message(this.username, this.value);
+        const newMessage = new Message("info",this.username, this.value);
         this.messages.push(newMessage);
         this.value = "";
+        this.$nextTick(() => {
+          console.log("oue")
+          var scrollObj = document.getElementById("scrollMsg");
+          scrollObj.scrollTo({
+            top:scrollObj.scrollHeight,
+            behavior:'smooth'
+          });
+  
+        });
       }
     },
     confirmUsername() {
       if (this.tempUsername.trim() !== '') {
         this.username = this.tempUsername;
         this.showDialog = false;
+        const messageObject = {
+        type: "success",  
+        username: this.username,
+        message: "Utilisateur connécté"
+        };
+        this.socket.send(JSON.stringify(messageObject));
+        const newMessage = new Message("success",this.username, "Utilisateur connécté");
+        this.messages.push(newMessage);
       } else {
         alert("Veuillez entrer un pseudo."); // Vous pouvez utiliser un mécanisme plus sophistiqué pour la validation
       }
@@ -93,7 +118,7 @@ export default {
     
   },
   mounted() {
-    this.socket = new WebSocket("ws://rayanekaabeche.fr:8080/echo");
+    this.socket = new WebSocket("ws://rayanekaabeche:8080/echo");
 
     this.socket.onopen = () => {
      
@@ -101,7 +126,10 @@ export default {
 
     this.socket.onmessage = (e) => {
       this.receiveMessage(e.data);
-      console.log(this.messages)
+      this.$nextTick(() => {
+          var scrollObj = document.getElementById("scrollMsg");
+          scrollObj.scrollTop = scrollObj.scrollHeight;
+      });
     };
   }
 }
