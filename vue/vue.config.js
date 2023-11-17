@@ -2,11 +2,9 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   devServer: {
     allowedHosts: [
-      'localhost',
-      'rayanekaabeche.fr:8080',
-      'rayanekaabeche.fr',
+      'rayanekaabeche.fr', // Ajoutez ici les hôtes autorisés
+      'localhost'
     ],
-    disableHostCheck: true,
   },
   transpileDependencies: true
 })
