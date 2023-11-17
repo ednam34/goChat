@@ -26,11 +26,11 @@ var clients []*websocket.Conn
 func main() {
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
-
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		defer conn.Close()
 
 		clients = append(clients, conn)
 
@@ -39,6 +39,13 @@ func main() {
 			msgType, msg, err := conn.ReadMessage()
 			if err != nil {
 				fmt.Println(err)
+				// Remove the disconnected client
+				for i, client := range clients {
+					if client == conn {
+						clients = append(clients[:i], clients[i+1:]...)
+						break
+					}
+				}
 				return
 			}
 
@@ -47,20 +54,22 @@ func main() {
 			var msgToSend Message
 
 			err = json.Unmarshal(msg, &msgToSend)
-			fmt.Printf(string(msg))
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
 
-			actualCl := conn.RemoteAddr()
+			actualCl := conn.RemoteAddr().String()
 
 			for _, client := range clients {
 				// Write message back to browser
-				if client.NetConn().RemoteAddr() != actualCl {
+				if client.RemoteAddr().String() != actualCl {
 					if err = client.WriteMessage(msgType, msg); err != nil {
+						fmt.Println(err)
 						return
 					}
 				}
-
 			}
-
 		}
 	})
 
