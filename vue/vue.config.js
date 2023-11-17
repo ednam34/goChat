@@ -3,9 +3,10 @@ module.exports = defineConfig({
   devServer: {
     allowedHosts: [
       'localhost',
-      'http://rayanekaabeche.fr:8080/',
-      'http://rayanekaabeche.fr',
+      'rayanekaabeche.fr:8080',
+      'rayanekaabeche.fr',
     ],
+    disableHostCheck: true,
   },
   transpileDependencies: true
 })
