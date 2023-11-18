@@ -4,7 +4,7 @@
     <Button label="Confirmer" @click="confirmUsername"/>
   </Dialog>
   <div>
-    <HelloWorld msg="VUEGO CHAT APP" />
+    <HelloWorld msg="FUEGO CHAT APP" />
     <div class="p-3">
     <ScrollPanel ref="scrollPanel" id="scrollMsg" class="overflow-auto main-chat-cont"  style="width: 100%; height: 70vh">
       <MessageComp
@@ -13,7 +13,7 @@
         :type="message.type"
         :msg="message.message"
         :userName="message.username"
-        :icon="message.type === 'success' ? 'pi pi-user-plus' : 'pi pi-send'"
+        :icon="message.type === 'success' ? 'pi pi-user-plus' : message.type === 'error' ? 'pi pi-user-minus':'pi pi-send'"
       />
     </ScrollPanel>
   </div>
