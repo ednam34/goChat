@@ -1,7 +1,7 @@
 <template>
    <Dialog :visible="showDialog" v-model="showDialog" header="Entrez votre pseudo" :closable="false" :modal="true">
     <InputText v-model="tempUsername" placeholder="Pseudo"/>
-    <Button label="Confirmer" @click="confirmUsername"/>
+    <Button class="ml-1" label="Confirmer" @click="confirmUsername"/>
   </Dialog>
   <div>
     <h1>FUEGO CHAT APP</h1>
