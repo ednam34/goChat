@@ -64,11 +64,8 @@ export default {
     receiveMessage(jsonString) {
       try {
         const jsonObject = JSON.parse(jsonString);
-
         if (jsonObject && jsonObject.username && jsonObject.message && jsonObject.type) {
-          const newMessage = new Message(jsonObject.type, jsonObject.username, jsonObject.message);
-          console.log(newMessage)
-          this.messages.push(newMessage);
+          this.messages.push(new Message(jsonObject.type, jsonObject.username, jsonObject.message));
         } else {
           console.error("JSON invalide reçu");
         }
@@ -76,43 +73,35 @@ export default {
         console.error("Erreur lors du parsing du JSON:", error);
       }
     },
+    createAndSendMessage(type, message) {
+      const messageObject = { type, username: this.username, message };
+      this.socket.send(JSON.stringify(messageObject));
+      this.addNewMessage(type, message);
+    },
+    addNewMessage(type, message) {
+      const newMessage = new Message(type, this.username, message);
+      this.messages.push(newMessage);
+    },
     send() {
-      if (this.value.trim() !== '') {
-        const messageObject = {
-        type: "info",  
-        username: this.username,
-        message: this.value
-        };
-        this.socket.send(JSON.stringify(messageObject));
-        const newMessage = new Message("info",this.username, this.value);
-        this.messages.push(newMessage);
-        this.value = "";
-        console.log(document.getElementById('scrollMsg'))
-      }
+      if (!this.value.trim()) return;
+      this.createAndSendMessage("info", this.value);
+      this.value = "";
     },
     confirmUsername() {
-      if (this.tempUsername.trim() !== '') {
-        this.username = this.tempUsername;
-        this.showDialog = false;
-        const messageObject = {
-        type: "success",  
-        username: this.username,
-        message: "Utilisateur connécté"
-        };
-        this.socket.send(JSON.stringify(messageObject));
-        const newMessage = new Message("success",this.username, "Utilisateur connécté");
-        this.messages.push(newMessage);
-      } else {
-        alert("Veuillez entrer un pseudo."); // Vous pouvez utiliser un mécanisme plus sophistiqué pour la validation
+      if (!this.tempUsername.trim()) {
+        alert("Veuillez entrer un pseudo.");
+        return;
       }
+      this.username = this.tempUsername;
+      this.showDialog = false;
+      this.createAndSendMessage("success", "Utilisateur connécté");
     }
-    
   },
   mounted() {
-    this.socket = new WebSocket("ws://rayanekaabeche.fr:8081/echo");
+    this.socket = new WebSocket("ws://localhost:8081/echo");
 
     this.socket.onopen = () => {
-     
+      console.log("Connexion avec le serveur réussi")
     };
 
     this.socket.onmessage = (e) => {
