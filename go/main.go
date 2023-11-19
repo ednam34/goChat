@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -12,7 +13,12 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins
+		origin := r.Header.Get("Origin")
+
+		if strings.HasPrefix(origin, "http://localhost") || origin == "http://rayanekaabeche.fr" {
+			return true
+		}
+		return false
 	},
 }
 

@@ -4,24 +4,25 @@
     <Button label="Confirmer" @click="confirmUsername"/>
   </Dialog>
   <div>
-    <HelloWorld msg="FUEGO CHAT APP" />
+    <h1>FUEGO CHAT APP</h1>
     <div class="p-3">
-    <ScrollPanel ref="scrollPanel" id="scrollMsg" class="overflow-auto main-chat-cont"  style="width: 100%; height: 70vh">
-      <MessageComp
-        v-for="(message, index) in messages"
-        :key="index"
-        :type="message.type"
-        :msg="message.message"
-        :userName="message.username"
-        :icon="message.type === 'success' ? 'pi pi-user-plus' : message.type === 'error' ? 'pi pi-user-minus':'pi pi-send'"
-      />
-    </ScrollPanel>
-  </div>
+        <ScrollPanel ref="scrollPanel" id="scrollMsg" class="back overflow-auto main-chat-cont"  style="width: 100%; height: 70vh">
+            <MessageComp
+              v-for="(message, index) in messages"
+              :class="message.username === this.username ? 'msgRcv' : 'msgEnv'"
+              :key="index"
+              :type="message.type"
+              :msg="message.message"
+              :userName="message.username"
+              :icon="message.type === 'success' ? 'pi pi-user-plus' : message.type === 'error' ? 'pi pi-user-minus':'pi pi-send'"
+            />
+        </ScrollPanel>
+     </div>
     
-    <div class="container">
+    <div class="container p-2">
       <Toolbar class="mt-3 w-full">
         <template #start>
-          <p class="text-sm text-white mb-0 sm:mt-0">Votre message:</p>
+          <p class="text-sm mb-0 sm:mt-0">Votre message:</p>
         </template>
         <template #center>
           <div class="w-full w-auto-md">
@@ -29,7 +30,7 @@
           </div>
         </template>
         <template #end>
-          <Button icon="pi pi-send" aria-label="Filter" @click="send"/>
+          <Button icon="pi pi-send" label="envoyer" aria-label="Filter" @click="send"/>
         </template>
       </Toolbar>
     </div>
@@ -37,7 +38,6 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 import MessageComp from './components/Message.vue'
 import ScrollPanel from 'primevue/scrollpanel'
 import Dialog from 'primevue/dialog'
@@ -46,7 +46,6 @@ import Message from './model/Message'
 export default {
   name: 'App',
   components: {
-    HelloWorld,
     MessageComp,
     ScrollPanel,
     Dialog,
@@ -88,15 +87,7 @@ export default {
         const newMessage = new Message("info",this.username, this.value);
         this.messages.push(newMessage);
         this.value = "";
-        this.$nextTick(() => {
-          console.log("oue")
-          var scrollObj = document.getElementById("scrollMsg");
-          scrollObj.scrollTo({
-            top:scrollObj.scrollHeight,
-            behavior:'smooth'
-          });
-  
-        });
+        console.log(document.getElementById('scrollMsg'))
       }
     },
     confirmUsername() {
@@ -118,7 +109,7 @@ export default {
     
   },
   mounted() {
-    this.socket = new WebSocket("ws://rayanekaabeche.fr:8081/echo");
+    this.socket = new WebSocket("ws://localhost:8081/echo");
 
     this.socket.onopen = () => {
      
@@ -126,17 +117,12 @@ export default {
 
     this.socket.onmessage = (e) => {
       this.receiveMessage(e.data);
-      this.$nextTick(() => {
-          var scrollObj = document.getElementById("scrollMsg");
-          scrollObj.scrollTop = scrollObj.scrollHeight;
-      });
     };
   }
 }
 </script>
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -171,7 +157,24 @@ nav a.router-link-exact-active {
 .dialog-width-responsive {
   width: 50vw;
 }
+.back{
+  background-color: var(--surface-card);
+  border: solid;
+  border-color: var(--surface-border);
+  border-radius: 10px;
 
+}
+.msgRcv{
+  padding-right: 30px;
+  padding-left: 30px;
+  border-radius: 10px;
+}
+.msgEnv{
+  padding-right: 30px;
+  padding-left: 30px;
+  border-radius: 10px;
+  text-align: left !important;
+}
 @media (max-width: 768px) {
   .w-auto-md {
     width: auto;
