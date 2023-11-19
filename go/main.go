@@ -65,7 +65,7 @@ func main() {
 				quitMsg := Message{
 					Type:     "error",
 					Username: quitUser,
-					Message:  "Viens de se déco",
+					Message:  "Utilisateur déconnécté",
 				}
 				messageJSON, err := json.Marshal(quitMsg)
 				if err != nil {
