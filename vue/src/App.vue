@@ -109,7 +109,7 @@ export default {
     
   },
   mounted() {
-    this.socket = new WebSocket("ws://localhost:8081/echo");
+    this.socket = new WebSocket("ws://rayanekaabeche.fr:8081/echo");
 
     this.socket.onopen = () => {
      
