@@ -15,7 +15,7 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 
-		if strings.HasPrefix(origin, "http://localhost") || origin == "http://rayanekaabeche.fr:8080" {
+		if strings.HasPrefix(origin, "http://localhost") || origin == "http://rayanekaabeche.fr:8080" || strings.HasPrefix(origin, "http://rayanekaabeche.fr") {
 			return true
 		}
 		return false
@@ -139,5 +139,5 @@ func main() {
 		http.ServeFile(w, r, "index.html")
 	})
 
-	http.ListenAndServe(":8081", nil)
+	http.ListenAndServe(":4040", nil)
 }
