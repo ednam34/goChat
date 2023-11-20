@@ -133,7 +133,7 @@ export default {
     }
   },
   mounted() {
-    this.socket = new WebSocket("ws://rayanekaabeche:4040/echo");
+    this.socket = new WebSocket("ws://rayanekaabeche.fr:4040/echo");
 
     this.socket.onopen = () => {
       console.log("Connexion avec le serveur réussi")
