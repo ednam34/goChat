@@ -133,7 +133,7 @@ export default {
     }
   },
   mounted() {
-    this.socket = new WebSocket('ws://localhost:8081/chat');
+    this.socket = new WebSocket('ws://rayanekaabeche.fr:8081/chat');
 
     this.socket.onopen = () => {
       console.log("Connexion avec le serveur réussi")
