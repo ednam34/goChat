@@ -15,7 +15,7 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 
-		if strings.HasPrefix(origin, "http://localhost") {
+		if strings.HasPrefix(origin, "http://localhost") || origin == "http://rayanekaabeche.fr:8080" {
 			return true
 		}
 		return false
