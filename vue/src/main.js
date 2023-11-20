@@ -15,7 +15,7 @@ import SplitterPanel from 'primevue/splitterpanel';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import 'primeicons/primeicons.css'
-import 'primevue/resources/themes/viva-light/theme.css'
+import 'primevue/resources/themes/viva-dark/theme.css'
 import 'primevue/resources/primevue.min.css'
 
 /* eslint-disable */
