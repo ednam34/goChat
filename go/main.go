@@ -35,6 +35,27 @@ type Message struct {
 
 var users []User
 
+func sendAllUser(client *websocket.Conn) {
+	for _, user := range users {
+
+		quitMsg := Message{
+			Type:     "success",
+			Username: user.Username,
+			Message:  "Connecté",
+		}
+		messageJSON, err := json.Marshal(quitMsg)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(quitMsg)
+		if err = client.WriteMessage(websocket.TextMessage, messageJSON); err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+}
+
 func main() {
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -95,7 +116,7 @@ func main() {
 				for i, user := range users {
 					if user.client == conn {
 						users[i].Username = msgToSend.Username
-						fmt.Print(users)
+						sendAllUser(user.client)
 						break
 					}
 				}
