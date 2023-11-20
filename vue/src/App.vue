@@ -5,10 +5,21 @@
   </Dialog>
   <div>
     <h1>FUEGO CHAT APP</h1>
-    <div class="p-3">
-        <ScrollPanel ref="scrollPanel" id="scrollMsg" class="back overflow-auto main-chat-cont"  style="width: 100%; height: 70vh">
+    <div class="p-3 grid">
+        <div ref="scrollPanel" id="scrollMsg" class="field col-10 mr-2 back main-chat-cont"  style="height: 70vh">
             <MessageComp
               v-for="(message, index) in messages"
+              :class="message.username === this.username ? 'msgRcv' : 'msgEnv'"
+              :key="index"
+              :type="message.type"
+              :msg="message.message"
+              :userName="message.username"
+              :icon="message.type === 'success' ? 'pi pi-user-plus' : message.type === 'error' ? 'pi pi-user-minus':'pi pi-send'"
+            />
+        </div>
+        <ScrollPanel ref="scrollPanel" id="scrollMsg2" class="field col back"  style="height: 70vh">
+          <MessageComp
+              v-for="(message, index) in users"
               :class="message.username === this.username ? 'msgRcv' : 'msgEnv'"
               :key="index"
               :type="message.type"
@@ -57,7 +68,8 @@ export default {
       showDialog: true, // Afficher le dialogue au démarrage
       value: '',
       socket: null,
-      messages: [] // Tableau pour stocker les messages reçus
+      messages: [], // Tableau pour stocker les messages reçus
+      users: []
     }
   },
   methods: {
@@ -65,7 +77,18 @@ export default {
       try {
         const jsonObject = JSON.parse(jsonString);
         if (jsonObject && jsonObject.username && jsonObject.message && jsonObject.type) {
-          this.messages.push(new Message(jsonObject.type, jsonObject.username, jsonObject.message));
+          if(jsonObject.type==="error"){
+            console.log("error")
+            this.users = this.users.filter(message => message.username !== jsonObject.username);
+            this.messages.push(new Message(jsonObject.type, jsonObject.username, jsonObject.message));
+          }
+          else if(jsonObject.type==="success"){
+            this.addUser(jsonObject.username)
+          }else{
+            this.messages.push(new Message(jsonObject.type, jsonObject.username, jsonObject.message));
+            var scrollingContainer = document.getElementById('scrollMsg');
+            scrollingContainer.scrollTop = scrollingContainer.scrollHeight;
+          }
         } else {
           console.error("JSON invalide reçu");
         }
@@ -76,11 +99,23 @@ export default {
     createAndSendMessage(type, message) {
       const messageObject = { type, username: this.username, message };
       this.socket.send(JSON.stringify(messageObject));
-      this.addNewMessage(type, message);
+      if(type !="success"){
+        this.addNewMessage(type, message);
+      }
+      //this.addNewMessage(type, message);
+    },
+    addUser(userName){
+      const newUser = new Message("success", userName, "Connecté");
+      this.users.push(newUser);
+      var scrollingContainer = document.getElementById('scrollMsg2');
+      scrollingContainer.scrollTop = scrollingContainer.scrollHeight;
+
     },
     addNewMessage(type, message) {
       const newMessage = new Message(type, this.username, message);
       this.messages.push(newMessage);
+      var scrollingContainer = document.getElementById('scrollMsg');
+      scrollingContainer.scrollTop = scrollingContainer.scrollHeight;
     },
     send() {
       if (!this.value.trim()) return;
@@ -133,7 +168,19 @@ nav a.router-link-exact-active {
 
 .main-chat-cont {
   height: 83vh;
+  overflow-y: scroll;
 }
+
+.main-chat-cont::-webkit-scrollbar {
+  width: 0.5em; /* Largeur de la barre de défilement */
+}
+
+.main-chat-cont::-webkit-scrollbar-thumb {
+  background-color: #888; /* Couleur de la poignée de la barre de défilement */
+}
+
+
+
 
 .p-message-text {
   word-break: break-all;
